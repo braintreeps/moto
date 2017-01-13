@@ -8,10 +8,7 @@ from boto.ec2.elb.attributes import (
     AccessLogAttribute,
     CrossZoneLoadBalancingAttribute,
 )
-from boto.ec2.elb.policies import (
-    Policies,
-    OtherPolicy,
-)
+from boto.ec2.elb.policies import Policies
 from moto.core import BaseBackend
 from moto.ec2.models import ec2_backends
 from .exceptions import (
@@ -106,21 +103,6 @@ class FakeLoadBalancer(object):
         instance_ids = properties.get('Instances', [])
         for instance_id in instance_ids:
             elb_backend.register_instances(new_elb.name, [instance_id])
-
-        policies = properties.get('Policies', [])
-        port_policies = {}
-        for policy in policies:
-            policy_name = policy["PolicyName"]
-            other_policy = OtherPolicy()
-            other_policy.policy_name = policy_name
-            elb_backend.create_lb_other_policy(new_elb.name, other_policy)
-            for port in policy.get("InstancePorts", []):
-                temp = port_policies.get(port, [])
-                temp.append(policy_name)
-                port_policies[port] = temp
-
-        for port, policies in port_policies.items():
-            elb_backend.set_load_balancer_policies_of_backend_server(new_elb.name, port, policies)
 
         health_check = properties.get('HealthCheck')
         if health_check:

@@ -445,16 +445,18 @@ DESCRIBE_LOAD_BALANCERS_TEMPLATE = """<DescribeLoadBalancersResponse xmlns="http
           <DNSName>{{ load_balancer.dns_name }}</DNSName>
           <BackendServerDescriptions>
           {% for backend in load_balancer.backends %}
-            {% if backend.policy_names %}
             <member>
+                {% if backend.instance_port %}
                 <InstancePort>{{ backend.instance_port }}</InstancePort>
-                <PolicyNames>
-                    {% for policy in backend.policy_names %}
-                    <member>{{ policy }}</member>
-                    {% endfor %}
-                </PolicyNames>
+                {% endif %}
+                {% if backend.policy_names %}
+                    <PolicyNames>
+                        {% for policy in backend.policy_names %}
+                            <member>{{ policy }}</member>
+                        {% endfor %}
+                    </PolicyNames>
+                    {% endif %}
             </member>
-            {% endif %}
           {% endfor %}
           </BackendServerDescriptions>
           <Subnets>
